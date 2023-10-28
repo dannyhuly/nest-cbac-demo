@@ -6,13 +6,14 @@ import {
   Put,
   Param,
   UseGuards,
+  Request,
 } from '@nestjs/common';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { CatsService } from './cats.service';
-import { ICat } from './interfaces/cat.interface';
 import { UpdateCatDto } from './dto/update-cat.dto';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '../auth/auth.guard';
+import { AuthRequest } from '../auth/interfaces/auth-request.interface';
 
 @ApiTags('cats')
 @Controller('cats')
@@ -22,8 +23,11 @@ export class CatsController {
   @ApiBearerAuth()
   @UseGuards(AuthGuard)
   @Post()
-  async create(@Body() createCatDto: CreateCatDto) {
-    this.catsService.create(createCatDto);
+  async create(
+    @Body() createCatDto: CreateCatDto,
+    @Request() req: AuthRequest,
+  ) {
+    this.catsService.create(createCatDto, req.user.id);
   }
 
   @ApiBearerAuth()
@@ -34,7 +38,7 @@ export class CatsController {
   }
 
   @Get()
-  async findAll(): Promise<ICat[]> {
+  async findAll() {
     return this.catsService.findAll();
   }
 }

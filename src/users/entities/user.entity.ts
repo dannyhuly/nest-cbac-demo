@@ -10,7 +10,7 @@ export enum Rules {
 @Table({
   tableName: 'users',
 })
-export class User extends Model implements IUser {
+export class User extends Model<IUser> {
   @Unique
   @Column
   username: string;

@@ -1,7 +1,7 @@
 import { Rules } from '../entities/user.entity';
 import { IUser } from '../interfaces/user.interface';
 
-export class CreateUserDto implements IUser {
+export class CreateUserDto implements Omit<IUser, 'id'> {
   username: string;
   password: string;
   rule: Rules;

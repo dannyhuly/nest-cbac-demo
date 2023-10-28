@@ -5,6 +5,7 @@ import { IUser } from './interfaces/user.interface';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import configuration from '../config/configuration';
+import { CreateUserDto } from './dto/create-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -15,7 +16,7 @@ export class UsersService {
     private configService: ConfigService<typeof configuration>,
   ) {}
 
-  async create(user: IUser) {
+  async create(user: CreateUserDto) {
     const salt = await bcrypt.genSalt();
     const hash = await bcrypt.hash(user.password + this.hashSecret, salt);
 

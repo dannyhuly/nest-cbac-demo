@@ -3,14 +3,15 @@ import { InjectModel } from '@nestjs/sequelize';
 import { Cat } from './entities/cat.entity';
 import { CreateCatDto } from './dto/create-cat.dto';
 import { UpdateCatDto } from './dto/update-cat.dto';
+import { User } from '../users/entities/user.entity';
 
 @Injectable()
 export class CatsService {
   constructor(@InjectModel(Cat) private catRepository: typeof Cat) {}
 
-  create(cat: CreateCatDto) {
+  create(cat: CreateCatDto, userId: User['id']) {
     // FIXME: cat should be strongly typed
-    this.catRepository.create(cat as any);
+    this.catRepository.create({ ...cat, userId } as any);
   }
   update(id: Cat['id'], cat: UpdateCatDto) {
     // FIXME: cat should be strongly typed
