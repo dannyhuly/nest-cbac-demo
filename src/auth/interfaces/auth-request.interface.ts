@@ -1,6 +1,8 @@
 import { Request } from 'express';
-import { IAuthUser } from './auth-user.interface';
+import { IAuthedUser } from './auth-user.interface';
+import { AppAbility } from '../../authz';
 
-export interface AuthRequest extends Request {
-  user: IAuthUser;
+export interface AuthedRequest extends Request {
+  user: IAuthedUser;
+  ability: AppAbility;
 }

@@ -1,21 +1,28 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { CatsModule } from './cats/cats.module';
-import { SequelizeModule } from '@nestjs/sequelize';
-import { dataBaseConfig } from './database/database.config';
 import { UsersModule } from './users/users.module';
 import { AuthModule } from './auth/auth.module';
 import { ConfigModule } from '@nestjs/config';
 import configuration from './config/configuration';
+import { JwtMiddleware } from './auth/jwt.middleware';
+import { SetCaslAbilitiesMiddleware } from './authz/casl/set-casl-abilities.middleware';
+import { AuthzModule } from './authz/authz.module';
+import { DatabaseModule } from './database';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       load: [configuration],
     }),
-    SequelizeModule.forRoot(dataBaseConfig),
+    DatabaseModule,
     CatsModule,
     UsersModule,
     AuthModule,
+    AuthzModule,
   ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(JwtMiddleware, SetCaslAbilitiesMiddleware).forRoutes('*');
+  }
+}

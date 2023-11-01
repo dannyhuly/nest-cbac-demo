@@ -1,8 +1,11 @@
-import { Rules } from '../entities/user.entity';
+import { Role } from '../role.enum';
 
 export interface IUser {
   id: number;
   username: string;
-  password: string;
-  rule: Rules;
+  role: Role;
+}
+
+export interface IGuestUser {
+  role: Role.GUEST;
 }

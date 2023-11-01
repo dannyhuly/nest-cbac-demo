@@ -1,6 +1,4 @@
-import { IUser } from '../../users/interfaces/user.interface';
-
-export class SignInDto implements Pick<IUser, 'username' | 'password'> {
+export class SignInDto {
   username: string;
   password: string;
 }

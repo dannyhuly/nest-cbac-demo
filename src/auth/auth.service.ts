@@ -8,7 +8,8 @@ import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import configuration from '../config/configuration';
 import { JwtService } from '@nestjs/jwt';
-import { IAuthUser } from './interfaces/auth-user.interface';
+import { IAuthedUser } from './interfaces/auth-user.interface';
+import { JwtToken } from './interfaces/jwt-token.type';
 
 @Injectable()
 export class AuthService {
@@ -37,11 +38,17 @@ export class AuthService {
       ...({
         id: user.id,
         username: user.username,
-        rule: user.rule,
-      } as IAuthUser),
+        role: user.role,
+      } as IAuthedUser),
     };
     return {
       access_token: await this.jwtService.signAsync(payload),
     };
+  }
+
+  async verifyToken(token: JwtToken): Promise<IAuthedUser> {
+    return await this.jwtService.verifyAsync(token, {
+      secret: this.configService.get('jwt.secret'),
+    });
   }
 }

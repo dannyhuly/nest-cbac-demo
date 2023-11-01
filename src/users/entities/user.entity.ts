@@ -1,16 +1,12 @@
 import { Column, Table, Model, Unique, DataType } from 'sequelize-typescript';
 import { IUser } from '../interfaces/user.interface';
-
-export enum Rules {
-  ADMIN = 'ADMIN',
-  CREATOR = 'CREATOR',
-  VIEWER = 'VIEWER',
-}
+import { Role } from '../role.enum';
+import { SignInDto } from '../../auth/dto/signIn.dto';
 
 @Table({
   tableName: 'users',
 })
-export class User extends Model<IUser> {
+export class User extends Model<Omit<IUser, 'id'> & SignInDto> {
   @Unique
   @Column
   username: string;
@@ -19,8 +15,8 @@ export class User extends Model<IUser> {
   password: string;
 
   @Column({
-    defaultValue: Rules.VIEWER,
-    type: DataType.ENUM(...Object.values(Rules)),
+    defaultValue: Role.GUEST,
+    type: DataType.ENUM(...Object.values(Role)),
   })
-  rule: Rules;
+  role: Role;
 }

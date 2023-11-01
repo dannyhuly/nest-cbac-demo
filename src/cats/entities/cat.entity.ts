@@ -5,6 +5,7 @@ import {
   BelongsTo,
   ForeignKey,
   AllowNull,
+  Default,
 } from 'sequelize-typescript';
 import { ICat } from '../interfaces/cat.interface';
 import { User } from '../../users/entities/user.entity';
@@ -32,4 +33,9 @@ export class Cat extends Model<ICat> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @AllowNull(false)
+  @Default(false)
+  @Column
+  visible: boolean;
 }

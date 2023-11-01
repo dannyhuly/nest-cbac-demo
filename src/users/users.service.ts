@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { User } from './entities/user.entity';
-import { IUser } from './interfaces/user.interface';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import configuration from '../config/configuration';
@@ -17,12 +16,15 @@ export class UsersService {
   ) {}
 
   async create(user: CreateUserDto) {
-    const salt = await bcrypt.genSalt();
+    const salt = await bcrypt.genSalt(
+      this.configService.get('hash.saltRounds'),
+    );
     const hash = await bcrypt.hash(user.password + this.hashSecret, salt);
 
-    this.userRepository.create({
+    await this.userRepository.create({
       username: user.username,
       password: hash,
+      role: user.role,
     });
   }
 
