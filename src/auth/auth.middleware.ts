@@ -6,10 +6,9 @@ import {
 import { Request, Response, NextFunction } from 'express';
 import { JwtToken } from './interfaces/jwt-token.type';
 import { AuthService } from './auth.service';
-import { Role } from '../users/role.enum';
 
 @Injectable()
-export class JwtMiddleware implements NestMiddleware {
+export class AuthMiddleware implements NestMiddleware {
   constructor(private authService: AuthService) {}
 
   async use(req: Request, res: Response, next: NextFunction) {
@@ -21,8 +20,6 @@ export class JwtMiddleware implements NestMiddleware {
       } catch {
         throw new BadRequestException('Invalid JWT token');
       }
-    } else {
-      req['user'] = { role: Role.GUEST };
     }
     next();
   }

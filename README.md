@@ -21,9 +21,32 @@ When a _User_ sends an API request his assigned _Role_ will be challenged by the
 For some actions (like: read and update) is not enough to only protect the endpoint.
 Some actions will need to Query a 3rd party service (db, HTTP API, etc.) with the correct filters to prevent pulling or updating records.
 
+This DEMO support a **sequelize** solution (can be modify for other DBs) for creating a **WHERE** statement from _Polices_. (see: `cats.controller.ts`)
+
 ### Integrate In Nest Application
 
-1. Add Middleware to all routes where the CBAC need to be accessible 
+1. Create `./authz.utils.ts` file and introduce the following to the app
+  - **Claimant** - The user type which all clams will be checked agents 
+  - **Subjects** - A list of clams types. Each clam type will support 5 actions (manage, create, read, update, delete). Usably the list will corelate with the project controllers but not exclusively.
+  - **ClaimQualifications** - A decorator for declaring a clam for the claimant to pass
+  - **CbacMiddleware** - A middleware with a Claimant resolver callback which will bind the Claimant to the app context (currently works only with Express)
+
+```ts
+// ./authz.utils.ts
+import { IUser } from '../users';
+import {
+  createCbacMiddleware,
+  createClaimQualificationsDecorator,
+} from '../modules/cbac';
+
+export type Claimant = IUser;
+export type Subjects = 'Cat' | 'User';
+
+export const ClaimQualifications = createClaimQualificationsDecorator<Subjects>();
+export const CbacMiddleware = createCbacMiddleware<Claimant, Subjects>((req) => req['user']);
+```
+
+2. Add `CbacMiddleware` to all routes
 
 ```ts
 @Module({
@@ -35,28 +58,21 @@ Some actions will need to Query a 3rd party service (db, HTTP API, etc.) with th
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
     consumer
-      .apply(JwtMiddleware, SetCaslAbilitiesMiddleware)
+      .apply(AuthMiddleware, CbacMiddleware)
       .forRoutes('*');
   }
 }
 ```
 
- * **JwtMiddleware** - Set user data on `request` (e.g. `request.user`)
- * **SetCaslAbilitiesMiddleware** - Set user data on `request` (e.g. `request.ability`)
-
-
 #### Adding Claim Qualifications
-
-When a user make a request a [CASL]() _AppAbility_ is created via the `set-abilities.middleware.ts` () and set on the request.
-The _Ability_ is bind to the User JWT value (for condition of `{ userId: user.id }` user.id will be the value in the JWT payload)
 
 There are couple of ways to run a check:
 
 ##### Using Decorators
 
 ```ts
-  // 1. using ClaimsGuard + ClaimQualifications (raw value)
-  @UseGuards(ClaimsGuard)
+  // 1. using CbacGuard + ClaimQualifications (raw value)
+  @UseGuards(CbacGuard)
   @ClaimQualifications([Action.Read, 'Cat'])
   @Get()
   async findAll() {
@@ -65,7 +81,7 @@ There are couple of ways to run a check:
 ```
 
 ```ts
-  // 2. using ClaimsGuard + ClaimQualifications (arrow function)
+  // 2. using CbacGuard + ClaimQualifications (arrow function)
   @UseGuards(ClaimsGuard)
   @ClaimQualifications((ability: AppAbility) => ability.can(Action.Read, 'Cat'))
   @Get()
@@ -76,14 +92,61 @@ There are couple of ways to run a check:
 
 ##### Using Manually  
 ```ts
-  // 3. manual check (using @Ability() to extract AppAbility from request)
+  // 3. manual check (using CbacService)
+  export class CatsController {
+  constructor(
+    private cbacService: CbacService<Claimant, Subjects>,
+  ) {}
+
   @Get()
-  async findAll(@Ability() ability: AppAbility) {
-    if(ability.can(Action.Read, 'Cat')) {
+  async findAll() {
+    if(this.cbacService.getCbacAppAbility.can(Action.Read, 'Cat')) {
       ...
     }
   }
 ```
+
+### Using with DB
+
+Some times we like to restrict the dataset not the whole flow. We can achieve this by creating a BD query filter from the user policy.
+
+Example: if the policy dictates that following 
+- A user can see all visible Cats 
+- A user can see his hidden Cats
+
+The the following query is generated:
+```sql
+SELECT * FROM `Cats` WHERE ((`Cats`.`userId` = :USER_ID AND `Cats`.`visible` = 0) OR `Cats`.`visible` = 1);
+``` 
+
+The CBAC can generate a WHERE statement to restrict data set (for update and delete as well) by using the following methods.
+
+
+##### MongoDB
+```ts
+  @ClaimQualifications([Action.Read, 'Cat'])
+  @Get()
+  async findAll() {
+    const queryWhere = this.cbacService.toMongoQuery(Action.Read, 'Cat');
+    // queryWhere: { '$or': [ { userId: 2, visible: false }, { visible: true } ] }
+
+    return this.catsService.findAll(queryWhere);
+  }
+```
+
+##### Sequelize
+https://casl.js.org/v6/en/advanced/ability-to-database-query
+```ts
+  @ClaimQualifications([Action.Read, 'Cat'])
+  @Get()
+  async findAll() {
+    const queryWhere = this.cbacService.toSequelizeQuery(Action.Read, 'Cat');
+    // queryWhere: { [Symbol(or)]: [ { userId: 2, visible: false }, { visible: true } ] }
+
+    return this.catsService.findAll(queryWhere);
+  }
+```
+
 
 ### Predefine Demo Dataset
 

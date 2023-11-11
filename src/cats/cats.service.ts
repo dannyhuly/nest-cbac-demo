@@ -41,14 +41,12 @@ export class CatsService {
   }
 
   async delete(id: Cat['id'], queryWhere: WhereOptions<ICat>) {
-    const updateRes = await this.catRepository.destroy({
+    const deletedCats = await this.catRepository.destroy({
       where: { [Op.and]: [{ id: id }, queryWhere] },
     });
 
-    if (updateRes[0] == 0) {
+    if (deletedCats == 0) {
       throw new NotFoundException();
     }
-
-    return updateRes;
   }
 }

@@ -1,2 +1,3 @@
-export * from './cbac';
-export * from './casl';
+export * from './authz.module';
+export * from './authz.middleware';
+export * from './authz.utils';

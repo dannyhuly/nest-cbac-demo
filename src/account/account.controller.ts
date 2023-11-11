@@ -7,16 +7,15 @@ import {
   Post,
   UseGuards,
 } from '@nestjs/common';
-import { AuthService } from './auth.service';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { SignInDto } from './dto/signIn.dto';
-import { IUser } from '../users/interfaces/user.interface';
-import { CurrentUser } from './current-user.decorator';
-import { CbacGuard } from '../modules/cbac';
+import { AuthService, CurrentUser } from '../auth';
+import { SignInDto } from '../auth';
+import { IUser } from '../users';
+import { CbacGuard } from '../modules/cbac/cbac.guard';
 
-@ApiTags('auth')
-@Controller('auth')
-export class AuthController {
+@ApiTags('account')
+@Controller('accounts')
+export class AccountController {
   constructor(private authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)

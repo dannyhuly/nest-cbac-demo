@@ -3,7 +3,7 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
+import { UsersService } from '../users';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import configuration from '../config/configuration';

@@ -5,7 +5,3 @@ export interface IUser {
   username: string;
   role: Role;
 }
-
-export interface IGuestUser {
-  role: Role.GUEST;
-}
