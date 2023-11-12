@@ -1,6 +1,6 @@
 ## Description
 
-A **DEMO** [Nest]() API server with **C**laim **B**ased **A**ccess **C**ontrol (CBAC) support using [CASL]().
+A **DEMO** [Nest][Nest] API server with **C**laim **B**ased **A**ccess **C**ontrol (CBAC) support using [CASL][CASL].
 
 To implement the CBAC the following specification were implemented
 
@@ -147,6 +147,10 @@ https://casl.js.org/v6/en/advanced/ability-to-database-query
   }
 ```
 
+##### TypeORM
+TBD
+##### Prisma
+TBD
 
 ### Predefine Demo Dataset
 
@@ -208,12 +212,12 @@ $ npm run test:cov
 
 ## TODO:
 
-- [] Load policies CASL from DB
-- [] Support DB migrations files (add demo-init seed file)
-- [] Encapsulate casl + authz to NestJS Module 
-- [] Pagination for `GET /cats` api
+ - [ ] Load policies CASL from DB
+ - [ ] Support DB migrations files (add demo-init seed file)
+ - [ ] Encapsulate casl + authz to NestJS Module 
+ - [ ] Pagination for `GET /cats` api
 
 
 
-  [CASL][https://casl.js.org/v6/en]
-  [Nest][https://github.com/nestjs/nest]
+  [CASL]: https://casl.js.org/v6/en
+  [Nest]: https://github.com/nestjs/nest
